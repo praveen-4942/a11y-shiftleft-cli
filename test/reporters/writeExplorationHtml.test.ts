@@ -552,6 +552,15 @@ test("renderExplorationHtml renders state screenshots, issues, and edges", () =>
   assert.match(html, /Triage Overview/);
   assert.match(html, /Most Affected States/);
   assert.match(html, /Top Rules/);
+  assert.match(html, /\.triage-title code \{[\s\S]*?color: var\(--ink\)/);
+  assert.match(html, /<h2>Checked States<\/h2>/);
+  assert.match(html, /<nav class="state-nav" aria-label="State navigation">/);
+  assert.match(html, /href="#state-1"[\s\S]*?state-1: Initial page/);
+  assert.match(html, /state-nav-link state-nav-link-critical/);
+  assert.match(html, /<div class="state-visual">[\s\S]*?<h3>state-1: Initial page<\/h3>[\s\S]*?<div class="screenshot-evidence-grid">/);
+  assert.match(html, /<div class="state-visual-header">[\s\S]*?<span class="badge badge-critical">1 critical<\/span>/);
+  assert.match(html, /\.state-visual-header h3 \{[\s\S]*?font-size: 18px/);
+  assert.match(html, /\.state-visual-header \.badges \{[\s\S]*?margin-top: 2px/);
   assert.doesNotMatch(html, /score 5/);
   assert.match(html, /WCAG 4\.1\.2 Name, Role, Value, Level A/);
   assert.match(html, /annotation annotation-critical/);
@@ -563,7 +572,7 @@ test("renderExplorationHtml renders state screenshots, issues, and edges", () =>
   assert.match(html, /class="screenshot-lightbox-backdrop" href="#state-1" aria-label="Close annotated screenshot"/);
   assert.match(html, /\.screenshot-lightbox-backdrop \{/);
   assert.match(html, /screenshot-frame screenshot-frame-full/);
-  assert.match(html, /Open scrollable full-page screenshot/);
+  assert.match(html, /data-short-label="Open screenshot" data-scroll-label="Open scrollable full-page screenshot">Open screenshot<\/a>/);
   assert.match(html, /screenshot-frame-full[\s\S]*?object-fit: contain/);
   assert.match(html, /screenshot-frame-full[\s\S]*?aspect-ratio: auto/);
   assert.match(html, /screenshot-frame-full[\s\S]*?overflow: hidden/);
@@ -571,6 +580,7 @@ test("renderExplorationHtml renders state screenshots, issues, and edges", () =>
   assert.match(html, /screenshot-frame-full \.screenshot-scroll[\s\S]*?scrollbar-gutter: stable both-edges/);
   assert.match(html, /screenshot-frame-full \.screenshot-stage[\s\S]*?min-height: 0/);
   assert.match(html, /<div class="screenshot-scroll">\s*<div class="screenshot-stage">/);
+  assert.match(html, /<div class="screenshot-stage">[\s\S]*?<a class="screenshot-open" href="#screenshot-state-1" data-short-label="Open screenshot" data-scroll-label="Open scrollable full-page screenshot">Open screenshot<\/a>\s*<\/div>\s*<\/div>/);
   assert.match(html, /\.screenshot-evidence-grid \.screenshot-frame \{[\s\S]*?align-self: start/);
   assert.doesNotMatch(html, /<span class="badge">full-page evidence<\/span>/);
   assert.doesNotMatch(html, /actions queued/);
@@ -580,12 +590,22 @@ test("renderExplorationHtml renders state screenshots, issues, and edges", () =>
   assert.match(html, /No automated findings in this state\./);
   assert.match(html, /\.state-critical/);
   assert.match(html, /\.states \{[\s\S]*?align-items: start/);
+  assert.match(html, /\.state-review-layout \{[\s\S]*?grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(html, /\.state-nav \{[\s\S]*?position: sticky/);
+  assert.match(html, /grid-template-columns: minmax\(240px, 30%\) minmax\(0, 1fr\)/);
+  assert.match(html, /const syncStateScreenshotHeights = \(\) =>/);
+  assert.match(html, /const updateScreenshotOpenLabels = \(\) =>/);
+  assert.match(html, /scroll\.scrollHeight > scroll\.clientHeight \+ 2/);
+  assert.match(html, /link\.textContent = isScrollable/);
+  assert.match(html, /visual\.style\.maxHeight = bodyHeight \+ 'px'/);
   assert.match(html, /\.screenshot-evidence-grid \{[\s\S]*?align-items: start/);
   assert.match(html, /\.state-body \{[\s\S]*?align-content: start/);
   assert.match(html, /\.state-body \{[\s\S]*?align-items: start/);
   assert.match(html, /\.state-body > \* \{[\s\S]*?align-self: start/);
   assert.match(html, /\.issue-list,[\s\S]*?align-items: start/);
+  assert.match(html, /\.issue-list,[\s\S]*?gap: 9px/);
   assert.match(html, /\.issue \{[\s\S]*?align-self: start/);
+  assert.match(html, /\.issue,[\s\S]*?border-top: 1px solid var\(--line\)[\s\S]*?padding-top: 9px/);
   assert.match(html, /aspect-ratio: var\(--screenshot-aspect, 16 \/ 9\)/);
   assert.match(html, /grid-template-rows: auto auto/);
   assert.match(html, /min-height: 0/);
@@ -604,17 +624,19 @@ test("renderExplorationHtml renders state screenshots, issues, and edges", () =>
   assert.match(html, /\.issue:has\(\.remediation\[open\]\)/);
   assert.match(html, /\.remediation\[open\] \.remediation-body/);
   assert.match(html, /\.remediation\[open\][\s\S]*?z-index: 90/);
-  assert.match(html, /\.remediation\[open\] \.remediation-body[\s\S]*?z-index: 100/);
+  assert.match(html, /\.remediation\[open\] \.remediation-body[\s\S]*?margin-top: 6px/);
+  assert.match(html, /\.remediation\[open\] \.remediation-body[\s\S]*?overflow-x: auto/);
   assert.match(html, /\.contrast-guidance-title/);
   assert.doesNotMatch(html, /\.contrast-guidance\[open\] \.contrast-guidance-body/);
-  assert.match(html, /position: absolute/);
-  assert.match(html, /max-height: min\(380px, 60vh\)/);
+  const remediationOpenStyles = html.match(/\.remediation\[open\] \.remediation-body \{([\s\S]*?)\n    \}/)?.[1] || "";
+  assert.doesNotMatch(remediationOpenStyles, /position: absolute/);
+  assert.doesNotMatch(remediationOpenStyles, /max-height/);
   assert.match(html, /--critical: #d0001b/);
   assert.match(html, /background: rgb\(208 0 27 \/ 12%\)/);
   assert.match(html, /--warning-marker: #f97316/);
   assert.match(html, /border-color: var\(--warning-marker\)/);
   assert.doesNotMatch(html, /9999px rgb\(30 36 48 \/ 4%\)/);
-  assert.match(html, /Open annotated screenshot/);
+  assert.match(html, /Open screenshot/);
   assert.match(html, /id="screenshot-state-1"/);
   assert.match(html, /Annotated screenshot for state-1/);
   assert.match(html, /left: 10%; top: 20%; width: 30%; height: 12%/);
@@ -693,6 +715,15 @@ test("renderExplorationHtml shows issue lifecycle badges", () => {
 
   const html = renderExplorationHtml(graph, lifecycleIssues);
 
+  assert.match(html, /Issue Lifecycle/);
+  assert.match(html, /<strong>1<\/strong>\s*<span>New · not in the accepted baseline<\/span>/);
+  assert.match(html, /<strong>1<\/strong>\s*<span>Remaining · seen before and still present<\/span>/);
+  assert.match(html, /<strong>1<\/strong>\s*<span>Temporary · accepted until review<\/span>/);
+  assert.match(html, /<strong>1<\/strong>\s*<span>Needs review · requires human confirmation<\/span>/);
+  assert.match(html, /<strong>2<\/strong>\s*<span>Third-party · embedded-content follow-up<\/span>/);
+  assert.match(html, /Fix or triage new findings first/);
+  assert.match(html, /\.lifecycle-summary \{/);
+  assert.match(html, /\.lifecycle-summary-new strong \{[\s\S]*?color: var\(--critical\)/);
   assert.match(html, /badge-lifecycle-new">new<\/span>/);
   assert.match(html, /badge-lifecycle-remaining">remaining<\/span>/);
   assert.match(html, /badge-lifecycle-remaining">tracked: accepted-temporarily<\/span>/);
@@ -1160,8 +1191,8 @@ test("renderExplorationHtml groups repeated remediation by rule", () => {
     }
   ]);
 
-  assert.match(html, /button-name<\/code>[\s\S]*?2 occurrences/);
-  assert.match(html, /Affected findings \(2\)/);
+  assert.doesNotMatch(issueBlockForRule(html, "button-name"), /2 occurrences/);
+  assert.doesNotMatch(html, /Affected findings \(2\)/);
   assert.equal((html.match(/<summary>How to fix<\/summary>/g) || []).length, 1);
 });
 
@@ -1174,12 +1205,14 @@ test("renderExplorationHtml collapses large affected finding lists", () => {
   const html = renderExplorationHtml(graph, repeatedIssues);
   const issueHtml = issueBlockForRule(html, "button-name");
 
-  assert.match(issueHtml, /<div class="affected-findings-title">Affected findings \(6\) <span class="severity-mix" aria-label="Severity mix"><span class="severity-mix-count severity-mix-critical">6 critical<\/span><\/span><\/div>/);
+  assert.doesNotMatch(issueHtml, /Affected findings \(6\)/);
+  assert.match(issueHtml, /<div class="affected-findings">\s*<ul class="finding-occurrences">/);
+  assert.doesNotMatch(issueHtml, /severity-mix/);
   assert.doesNotMatch(issueHtml, /<details class="affected-findings"/);
-  assert.match(html, /\.affected-findings-title \{[\s\S]*?font-weight: 800/);
-  assert.match(html, /\.severity-mix-critical \{[\s\S]*?color: var\(--critical\)/);
-  assert.match(html, /\.severity-mix-warning \{[\s\S]*?color: var\(--warning\)/);
-  assert.match(html, /\.severity-mix-info \{[\s\S]*?color: var\(--info\)/);
+  assert.doesNotMatch(html, /\.affected-findings-title/);
+  assert.doesNotMatch(html, /\.severity-mix-critical/);
+  assert.doesNotMatch(html, /\.severity-mix-warning/);
+  assert.doesNotMatch(html, /\.severity-mix-info/);
 });
 
 test("renderExplorationHtml shows the first ten affected findings for very large groups", () => {
@@ -1192,7 +1225,7 @@ test("renderExplorationHtml shows the first ten affected findings for very large
   const html = renderExplorationHtml(graph, repeatedIssues);
   const issueHtml = issueBlockForRule(html, "button-name");
 
-  assert.match(issueHtml, /<div class="affected-findings-title">Affected findings \(31\)/);
+  assert.doesNotMatch(issueHtml, /Affected findings \(31\)/);
   assert.doesNotMatch(issueHtml, /<details class="affected-findings"/);
   assert.match(issueHtml, /\.repeated-button-1/);
   assert.match(issueHtml, /\.repeated-button-10/);
@@ -1239,7 +1272,7 @@ test("renderExplorationHtml groups identical issue messages into numbered locati
   ]);
   const issueHtml = issueBlockForRule(html, "color-contrast");
 
-  assert.match(issueHtml, /2 locations/);
+  assert.doesNotMatch(issueHtml, /2 locations/);
   assert.match(issueHtml, /<ol class="finding-targets">/);
   assert.match(issueHtml, /title="Screenshot marker 1">1<\/span><div class="url finding-target-text"><div class="finding-target-primary">\.py-4\.active\\:scale-\\\[0\\\.97\\\]\.text-base<\/div>/);
   assert.match(issueHtml, /title="Screenshot marker 2">2<\/span><div class="url finding-target-text"><div class="finding-target-primary">\.text-amber-signal<\/div>/);
@@ -1279,7 +1312,7 @@ test("renderExplorationHtml groups clipped text messages by rule instead of clip
   ]);
   const issueHtml = issueBlockForRule(html, "layout-clipped-text");
 
-  assert.match(issueHtml, /2 locations/);
+  assert.doesNotMatch(issueHtml, /2 locations/);
   assert.match(issueHtml, /Text may be clipped at 320px\./);
   assert.equal((issueHtml.match(/Text may be clipped at 320px\./g) || []).length, 1);
   assert.doesNotMatch(issueHtml, /Long product headline/);
@@ -1338,7 +1371,7 @@ test("renderExplorationHtml groups inconsistent same-purpose control names witho
   ]);
   const issueHtml = issueBlockForRule(html, "control-name-inconsistent");
 
-  assert.match(issueHtml, /2 locations/);
+  assert.doesNotMatch(issueHtml, /2 locations/);
   assert.match(issueHtml, /Potential inconsistent accessible name for the same-purpose button\./);
   assert.equal((issueHtml.match(/Potential inconsistent accessible name for the same-purpose button\./g) || []).length, 1);
   assert.doesNotMatch(issueHtml, /Observed names/);
@@ -1574,7 +1607,7 @@ test("renderExplorationHtml groups color contrast findings with different ratios
   ]);
   const issueHtml = issueBlockForRule(html, "color-contrast");
 
-  assert.match(issueHtml, /2 locations/);
+  assert.doesNotMatch(issueHtml, /2 locations/);
   assert.equal((issueHtml.match(/Elements must meet minimum color contrast ratio thresholds/g) || []).length, 1);
   assert.match(issueHtml, /\.muted-link · Contrast 3\.77:1, required 4\.5:1/);
   assert.match(issueHtml, /\.brand-link · Contrast 3\.81:1, required 4\.5:1/);
@@ -1606,7 +1639,7 @@ test("renderExplorationHtml groups forced-colors focus findings and keeps each l
   ]);
   const issueHtml = issueBlockForRule(html, "forced-colors-focus-indicator-risk");
 
-  assert.match(issueHtml, /2 locations/);
+  assert.doesNotMatch(issueHtml, /2 locations/);
   assert.equal((issueHtml.match(new RegExp(baseMessage.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length, 1);
   assert.match(issueHtml, /div &gt; div &gt; header &gt; a · Label: "Skip to main content"/);
   assert.match(issueHtml, /header &gt; div &gt; div &gt; nav &gt; button:nth-of-type\(1\) · Label: "Solutions"/);
@@ -1849,7 +1882,7 @@ test("renderExplorationHtml shows identical contrast guidance once per screensho
   ]);
 
   assert.equal((html.match(/<div class="contrast-measurement">\s*<div><strong>Contrast 2\.32:1<\/strong>/g) || []).length, 1);
-  assert.match(html, /2 locations/);
+  assert.doesNotMatch(html, /2 locations/);
   assert.doesNotMatch(html, /<strong>Try:<\/strong>/);
   assert.equal((html.match(/Text color Minimum <code>#767676<\/code>/g) || []).length, 1);
   assert.match(html, /Shared recommendation for 2 findings/);
